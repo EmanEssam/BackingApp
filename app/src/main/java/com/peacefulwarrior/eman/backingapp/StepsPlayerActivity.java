@@ -2,6 +2,7 @@ package com.peacefulwarrior.eman.backingapp;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -23,13 +24,22 @@ public class StepsPlayerActivity extends AppCompatActivity {
         getIntent().getExtras().getParcelableArrayList("step");
         steps = getIntent().getExtras().getParcelableArrayList("step");
         Log.v("steps", steps.size() + "");
-        ViewPager viewPager = (ViewPager) findViewById(R.id.container);
-        viewPager.setAdapter(new SampleFragmentPageAdapter(getSupportFragmentManager(),
-                StepsPlayerActivity.this, steps));
+
+        Bundle bundle = new Bundle();
+        bundle.putString("video",steps.get(0).getVideoURL());
+        StepFragment stepFragment = new StepFragment();
+        stepFragment.setArguments(bundle);
+        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,stepFragment).commit();
+
+
+
+//        ViewPager viewPager = (ViewPager) findViewById(R.id.container);
+//        viewPager.setAdapter(new SampleFragmentPageAdapter(getSupportFragmentManager(),
+//                StepsPlayerActivity.this, steps));
 
         // Give the TabLayout the ViewPager
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-        tabLayout.setupWithViewPager(viewPager);
+//        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+//        tabLayout.setupWithViewPager(viewPager);
 
     }
 

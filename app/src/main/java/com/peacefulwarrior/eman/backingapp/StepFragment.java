@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -44,20 +45,21 @@ public class StepFragment extends Fragment {
     private static Step step2;
 
 
-    public static StepFragment newInstance(int position, Step step) {
-        Bundle args = new Bundle();
-        args.putInt(ARG_STEP, position);
-        StepFragment fragment = new StepFragment();
-        fragment.setArguments(args);
-        step2 = step;
-        return fragment;
-        // Required empty public constructor
-    }
+    public StepFragment(){}
+//    public static StepFragment newInstance(int position, Step step) {
+//        Bundle args = new Bundle();
+//        args.putInt(ARG_STEP, position);
+//        StepFragment fragment = new StepFragment();
+//        fragment.setArguments(args);
+//        step2 = step;
+//        return fragment;
+//        // Required empty public constructor
+//    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mStep = getArguments().getInt(ARG_STEP);
+//        mStep = getArguments().getInt(ARG_STEP);
     }
 
     @Override
@@ -66,6 +68,8 @@ public class StepFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_step, container, false);
         simpleExoPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.video_view);
+        ImageView backBtn=(ImageView)rootView.findViewById(R.id.back_btn);
+        ImageView nextBtn=(ImageView)rootView.findViewById(R.id.next_btn);
         bandwidthMeter = new DefaultBandwidthMeter();
         simpleExoPlayerView.requestFocus();
         TrackSelection.Factory videoTrackSelectionFactory =
@@ -76,7 +80,7 @@ public class StepFragment extends Fragment {
         player.setPlayWhenReady(true);
         DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
         mediaDataSourceFactory = new DefaultDataSourceFactory(getActivity(), Util.getUserAgent(getActivity(), "BakingApp"), (TransferListener<? super DataSource>) bandwidthMeter);
-        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(step2.getVideoURL()),
+        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(getArguments().get("video")+""),
                 mediaDataSourceFactory, extractorsFactory, null, null);
         player.prepare(mediaSource);
         return rootView;
