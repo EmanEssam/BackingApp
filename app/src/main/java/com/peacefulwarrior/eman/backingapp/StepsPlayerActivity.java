@@ -26,7 +26,7 @@ public class StepsPlayerActivity extends AppCompatActivity {
         Log.v("steps", steps.size() + "");
 
         Bundle bundle = new Bundle();
-        bundle.putString("video",steps.get(0).getVideoURL());
+        bundle.putParcelableArrayList("step",steps);
         StepFragment stepFragment = new StepFragment();
         stepFragment.setArguments(bundle);
         getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,stepFragment).commit();

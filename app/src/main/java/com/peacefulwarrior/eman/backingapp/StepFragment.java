@@ -28,6 +28,8 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
 import com.peacefulwarrior.eman.backingapp.model.Step;
 
+import java.util.List;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -42,19 +44,12 @@ public class StepFragment extends Fragment {
     private DataSource.Factory mediaDataSourceFactory;
     private DefaultTrackSelector trackSelector;
     private BandwidthMeter bandwidthMeter;
-    private static Step step2;
+    private List<Step> stepList;
+    private int mCurrentPosition=0;
 
 
     public StepFragment(){}
-//    public static StepFragment newInstance(int position, Step step) {
-//        Bundle args = new Bundle();
-//        args.putInt(ARG_STEP, position);
-//        StepFragment fragment = new StepFragment();
-//        fragment.setArguments(args);
-//        step2 = step;
-//        return fragment;
-//        // Required empty public constructor
-//    }
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,9 +62,20 @@ public class StepFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_step, container, false);
+        stepList=getArguments().getParcelableArrayList("step");
         simpleExoPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.video_view);
-        ImageView backBtn=(ImageView)rootView.findViewById(R.id.back_btn);
-        ImageView nextBtn=(ImageView)rootView.findViewById(R.id.next_btn);
+        final ImageView backBtn=(ImageView)rootView.findViewById(R.id.back_btn);
+        final ImageView nextBtn=(ImageView)rootView.findViewById(R.id.next_btn);
+        if (mCurrentPosition == 0) {
+            backBtn.setVisibility(View.GONE);
+        } else {
+            backBtn.setVisibility(View.VISIBLE);
+        }
+        if (mCurrentPosition==stepList.size()-1){
+            nextBtn.setVisibility(View.GONE);
+        }else {
+            nextBtn.setVisibility(View.VISIBLE);
+        }
         bandwidthMeter = new DefaultBandwidthMeter();
         simpleExoPlayerView.requestFocus();
         TrackSelection.Factory videoTrackSelectionFactory =
@@ -78,11 +84,51 @@ public class StepFragment extends Fragment {
         player = ExoPlayerFactory.newSimpleInstance(getActivity(), trackSelector);
         simpleExoPlayerView.setPlayer(player);
         player.setPlayWhenReady(true);
-        DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+        final DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
         mediaDataSourceFactory = new DefaultDataSourceFactory(getActivity(), Util.getUserAgent(getActivity(), "BakingApp"), (TransferListener<? super DataSource>) bandwidthMeter);
-        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(getArguments().get("video")+""),
+        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL().toString()+""),
                 mediaDataSourceFactory, extractorsFactory, null, null);
         player.prepare(mediaSource);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCurrentPosition--;
+                if (mCurrentPosition == 0) {
+                    backBtn.setVisibility(View.GONE);
+                } else {
+                    backBtn.setVisibility(View.VISIBLE);
+                }
+                if (mCurrentPosition==stepList.size()-1){
+                    nextBtn.setVisibility(View.GONE);
+                }else {
+                    nextBtn.setVisibility(View.VISIBLE);
+                }
+                MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL().toString()+""),
+                        mediaDataSourceFactory, extractorsFactory, null, null);
+                player.prepare(mediaSource);
+            }
+        });
+        nextBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCurrentPosition++;
+                if (mCurrentPosition == 0) {
+                    backBtn.setVisibility(View.GONE);
+                } else {
+                    backBtn.setVisibility(View.VISIBLE);
+                }
+                if (mCurrentPosition==stepList.size()-1){
+                    nextBtn.setVisibility(View.GONE);
+                }else {
+                    nextBtn.setVisibility(View.VISIBLE);
+                }
+                MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL().toString()+""),
+                        mediaDataSourceFactory, extractorsFactory, null, null);
+                player.prepare(mediaSource);
+
+
+            }
+        });
         return rootView;
     }
 
