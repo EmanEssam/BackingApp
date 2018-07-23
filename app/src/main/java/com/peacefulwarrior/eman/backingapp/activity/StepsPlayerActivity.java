@@ -1,4 +1,4 @@
-package com.peacefulwarrior.eman.backingapp;
+package com.peacefulwarrior.eman.backingapp.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.peacefulwarrior.eman.backingapp.R;
+import com.peacefulwarrior.eman.backingapp.StepFragment;
 import com.peacefulwarrior.eman.backingapp.model.Step;
 
 import java.util.ArrayList;
@@ -30,16 +32,6 @@ public class StepsPlayerActivity extends AppCompatActivity {
         StepFragment stepFragment = new StepFragment();
         stepFragment.setArguments(bundle);
         getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,stepFragment).commit();
-
-
-
-//        ViewPager viewPager = (ViewPager) findViewById(R.id.container);
-//        viewPager.setAdapter(new SampleFragmentPageAdapter(getSupportFragmentManager(),
-//                StepsPlayerActivity.this, steps));
-
-        // Give the TabLayout the ViewPager
-//        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-//        tabLayout.setupWithViewPager(viewPager);
 
     }
 

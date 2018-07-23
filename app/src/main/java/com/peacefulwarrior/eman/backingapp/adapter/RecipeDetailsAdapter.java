@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.peacefulwarrior.eman.backingapp.R;
-import com.peacefulwarrior.eman.backingapp.StepsPlayerActivity;
+import com.peacefulwarrior.eman.backingapp.activity.StepsPlayerActivity;
 import com.peacefulwarrior.eman.backingapp.model.Ingredient;
 import com.peacefulwarrior.eman.backingapp.model.Step;
 import com.peacefulwarrior.eman.backingapp.utils.Section;
@@ -23,6 +23,8 @@ public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.View
     private List<Section> sections;
     List<Step> steps;
     private Context context;
+    OnStepClickListener mCallback;
+
 
 
     public RecipeDetailsAdapter(List<Section> sections, Context context, List<Step> steps) {
@@ -66,7 +68,7 @@ public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
         Section item = sections.get(position);
 
         if (item instanceof Ingredient) {
@@ -80,6 +82,7 @@ public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.View
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    mCallback.onStepSelected(position);
                     Intent intent = new Intent(context, StepsPlayerActivity.class);
                     intent.putParcelableArrayListExtra("step", (ArrayList<? extends Parcelable>) steps);
                     context.startActivity(intent);
@@ -103,5 +106,8 @@ public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.View
         } else {
             return 1;
         }
+    }
+    public interface OnStepClickListener {
+        void onStepSelected(int position);
     }
 }

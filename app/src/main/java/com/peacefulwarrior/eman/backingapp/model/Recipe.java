@@ -14,7 +14,9 @@ public class Recipe implements Parcelable {
     private Integer servings;
     private String image;
 
-    protected Recipe(Parcel in) {
+    public Recipe(){}
+
+    public Recipe(Parcel in) {
         if (in.readByte() == 0) {
             id = null;
         } else {
