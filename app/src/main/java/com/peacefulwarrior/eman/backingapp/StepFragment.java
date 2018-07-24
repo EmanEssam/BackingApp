@@ -45,6 +45,7 @@ public class StepFragment extends Fragment {
     private DefaultTrackSelector trackSelector;
     private BandwidthMeter bandwidthMeter;
     private List<Step> stepList;
+    private Step currentStep;
     private int mCurrentPosition=0;
 
 
@@ -63,6 +64,7 @@ public class StepFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_step, container, false);
         stepList=getArguments().getParcelableArrayList("step");
+        currentStep=stepList.get(getArguments().getInt("position"));
         simpleExoPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.video_view);
         final ImageView backBtn=(ImageView)rootView.findViewById(R.id.back_btn);
         final ImageView nextBtn=(ImageView)rootView.findViewById(R.id.next_btn);
@@ -86,7 +88,7 @@ public class StepFragment extends Fragment {
         player.setPlayWhenReady(true);
         final DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
         mediaDataSourceFactory = new DefaultDataSourceFactory(getActivity(), Util.getUserAgent(getActivity(), "BakingApp"), (TransferListener<? super DataSource>) bandwidthMeter);
-        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL().toString()+""),
+        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(currentStep.getVideoURL()),
                 mediaDataSourceFactory, extractorsFactory, null, null);
         player.prepare(mediaSource);
         backBtn.setOnClickListener(new View.OnClickListener() {

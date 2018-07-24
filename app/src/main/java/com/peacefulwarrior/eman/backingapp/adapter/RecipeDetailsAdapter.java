@@ -76,15 +76,18 @@ public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.View
             RowViewHolder holder1 = (RowViewHolder) holder;
             holder1.ingredientTv.setText(ingredient.getIngredient() + " (" + ingredient.getQuantity() + ingredient.getMeasure() + ")");
         } else {
-            Step step = (Step) item;
+            final Step step = (Step) item;
             SectionViewHolder holder1 = (SectionViewHolder) holder;
             holder1.stepTv.setText(step.getShortDescription());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mCallback.onStepSelected(position);
+//                    mCallback.onStepSelected(position);
                     Intent intent = new Intent(context, StepsPlayerActivity.class);
                     intent.putParcelableArrayListExtra("step", (ArrayList<? extends Parcelable>) steps);
+                    int ingredients = sections.size()- steps.size();
+                    int step_position = position-ingredients;
+                    intent.putExtra("position",step_position);
                     context.startActivity(intent);
 
                 }
