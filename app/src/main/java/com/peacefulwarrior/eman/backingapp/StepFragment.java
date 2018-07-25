@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -46,10 +47,11 @@ public class StepFragment extends Fragment {
     private BandwidthMeter bandwidthMeter;
     private List<Step> stepList;
     private Step currentStep;
-    private int mCurrentPosition=0;
+    private int mCurrentPosition = 0;
 
 
-    public StepFragment(){}
+    public StepFragment() {
+    }
 
 
     @Override
@@ -63,20 +65,25 @@ public class StepFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_step, container, false);
-        stepList=getArguments().getParcelableArrayList("step");
-        currentStep=stepList.get(getArguments().getInt("position"));
+        stepList = getArguments().getParcelableArrayList("step");
+        currentStep = stepList.get(getArguments().getInt("position"));
         simpleExoPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.video_view);
-        final ImageView backBtn=(ImageView)rootView.findViewById(R.id.back_btn);
-        final ImageView nextBtn=(ImageView)rootView.findViewById(R.id.next_btn);
+        final Button backBtn = (Button) rootView.findViewById(R.id.back_btn);
+        final Button nextBtn = (Button) rootView.findViewById(R.id.next_btn);
         if (mCurrentPosition == 0) {
-            backBtn.setVisibility(View.GONE);
+//            backBtn.setVisibility(View.GONE);
+            backBtn.setEnabled(false);
         } else {
-            backBtn.setVisibility(View.VISIBLE);
+            backBtn.setEnabled(true);
+//            backBtn.setVisibility(View.VISIBLE);
         }
-        if (mCurrentPosition==stepList.size()-1){
-            nextBtn.setVisibility(View.GONE);
-        }else {
-            nextBtn.setVisibility(View.VISIBLE);
+        if (mCurrentPosition == stepList.size() - 1) {
+//            nextBtn.setVisibility(View.GONE);
+//            nextBtn.setEnabled(false);
+            nextBtn.setEnabled(false);
+        } else {
+//            nextBtn.setVisibility(View.VISIBLE);
+            nextBtn.setEnabled(true);
         }
         bandwidthMeter = new DefaultBandwidthMeter();
         simpleExoPlayerView.requestFocus();
@@ -96,16 +103,20 @@ public class StepFragment extends Fragment {
             public void onClick(View v) {
                 mCurrentPosition--;
                 if (mCurrentPosition == 0) {
-                    backBtn.setVisibility(View.GONE);
+//                    backBtn.setVisibility(View.GONE);
+                    backBtn.setEnabled(false);
                 } else {
-                    backBtn.setVisibility(View.VISIBLE);
+//                    backBtn.setVisibility(View.VISIBLE);
+                    backBtn.setEnabled(true);
                 }
-                if (mCurrentPosition==stepList.size()-1){
-                    nextBtn.setVisibility(View.GONE);
-                }else {
-                    nextBtn.setVisibility(View.VISIBLE);
+                if (mCurrentPosition == stepList.size() - 1) {
+//                    nextBtn.setVisibility(View.GONE);
+                    nextBtn.setEnabled(false);
+                } else {
+//                    nextBtn.setVisibility(View.VISIBLE);
+                    nextBtn.setEnabled(true);
                 }
-                MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL().toString()+""),
+                MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL().toString() + ""),
                         mediaDataSourceFactory, extractorsFactory, null, null);
                 player.prepare(mediaSource);
             }
@@ -115,16 +126,22 @@ public class StepFragment extends Fragment {
             public void onClick(View v) {
                 mCurrentPosition++;
                 if (mCurrentPosition == 0) {
-                    backBtn.setVisibility(View.GONE);
+//                    backBtn.setVisibility(View.GONE);
+                    backBtn.setEnabled(false);
+
                 } else {
-                    backBtn.setVisibility(View.VISIBLE);
+//                    backBtn.setVisibility(View.VISIBLE);
+                    backBtn.setEnabled(true);
                 }
-                if (mCurrentPosition==stepList.size()-1){
-                    nextBtn.setVisibility(View.GONE);
-                }else {
-                    nextBtn.setVisibility(View.VISIBLE);
+                if (mCurrentPosition == stepList.size() - 1) {
+//                    nextBtn.setVisibility(View.GONE);
+                    nextBtn.setEnabled(false);
+
+                } else {
+//                    nextBtn.setVisibility(View.VISIBLE);
+                    nextBtn.setEnabled(true);
                 }
-                MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL().toString()+""),
+                MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL().toString() + ""),
                         mediaDataSourceFactory, extractorsFactory, null, null);
                 player.prepare(mediaSource);
 
@@ -134,4 +151,35 @@ public class StepFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        releasePlayer();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        releasePlayer();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        releasePlayer();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        releasePlayer();
+    }
+
+    private void releasePlayer() {
+        if (player != null) {
+//            player.removeListener(componentListener);
+            player.release();
+            player = null;
+        }
+    }
 }

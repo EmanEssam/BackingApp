@@ -23,15 +23,20 @@ public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.View
     private List<Section> sections;
     List<Step> steps;
     private Context context;
+    private Boolean mTwoPane;
+    int step_position;
+    int ingredients;
     OnStepClickListener mCallback;
 
 
-
-    public RecipeDetailsAdapter(List<Section> sections, Context context, List<Step> steps) {
+    public RecipeDetailsAdapter(List<Section> sections, Context context, List<Step> steps, Boolean mTwoPane, OnStepClickListener mCallback) {
         this.sections = sections;
         this.context = context;
         this.steps = steps;
+        this.mTwoPane = mTwoPane;
+        this.mCallback = mCallback;
     }
+
 
     @NonNull
     @Override
@@ -83,12 +88,18 @@ public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.View
                 @Override
                 public void onClick(View view) {
 //                    mCallback.onStepSelected(position);
-                    Intent intent = new Intent(context, StepsPlayerActivity.class);
-                    intent.putParcelableArrayListExtra("step", (ArrayList<? extends Parcelable>) steps);
-                    int ingredients = sections.size()- steps.size();
-                    int step_position = position-ingredients;
-                    intent.putExtra("position",step_position);
-                    context.startActivity(intent);
+                    if (!mTwoPane) {
+                        Intent intent = new Intent(context, StepsPlayerActivity.class);
+                        intent.putParcelableArrayListExtra("step", (ArrayList<? extends Parcelable>) steps);
+                        ingredients = sections.size() - steps.size();
+                        step_position = position - ingredients;
+                        intent.putExtra("position", step_position);
+                        context.startActivity(intent);
+                    } else {
+                        ingredients = sections.size() - steps.size();
+                        step_position = position - ingredients;
+                        mCallback.onStepSelected(step_position);
+                    }
 
                 }
             });
@@ -110,6 +121,7 @@ public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.View
             return 1;
         }
     }
+
     public interface OnStepClickListener {
         void onStepSelected(int position);
     }

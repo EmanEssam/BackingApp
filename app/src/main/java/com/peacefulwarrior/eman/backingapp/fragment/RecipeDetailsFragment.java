@@ -23,9 +23,10 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class RecipeDetailsFragment extends Fragment {
+public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdapter.OnStepClickListener {
     List<Section> sections = new ArrayList<>();
     List<Step> steps = new ArrayList<>();
+    private OnStepClicked onStepClicked;
 
     public RecipeDetailsFragment() {
         // Required empty public constructor
@@ -44,12 +45,34 @@ public class RecipeDetailsFragment extends Fragment {
             steps = recipe.getSteps();
             RecyclerView RecipesList = rootView.findViewById(R.id.ingredientRV);
             RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-            RecipeDetailsAdapter mAdapter = new RecipeDetailsAdapter(sections, getContext(), steps);
+            RecipeDetailsAdapter mAdapter = new RecipeDetailsAdapter(sections, getContext(), steps,getArguments().getBoolean("tablet"),this);
             RecipesList.setLayoutManager(layoutManager);
             RecipesList.setAdapter(mAdapter);
         }
         return rootView;
     }
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        // This makes sure that the host activity has implemented the callback interface
+        // If not, it throws an exception
+        try {
+            onStepClicked= (OnStepClicked) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement OnImageClickListener");
+        }
+    }
 
 
+    @Override
+    public void onStepSelected(int position) {
+        onStepClicked.onStepClicked(position);
+
+    }
+
+    public interface OnStepClicked{
+        void onStepClicked(int position);
+    }
 }
