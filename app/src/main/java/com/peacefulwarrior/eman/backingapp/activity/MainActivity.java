@@ -1,5 +1,9 @@
 package com.peacefulwarrior.eman.backingapp.activity;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,6 +15,7 @@ import com.peacefulwarrior.eman.backingapp.adapter.RecipesListAdapter;
 import com.peacefulwarrior.eman.backingapp.model.ApiHelper;
 import com.peacefulwarrior.eman.backingapp.model.Recipe;
 import com.peacefulwarrior.eman.backingapp.service.ApiClient;
+import com.peacefulwarrior.eman.backingapp.utils.SimpleIdlingResource;
 
 import java.util.List;
 
@@ -24,6 +29,18 @@ public class MainActivity extends AppCompatActivity {
     private Recipe recipe;
     private RecipesListAdapter recipesListAdapter;
     RecyclerView.LayoutManager layoutManager;
+    @Nullable
+    private SimpleIdlingResource mIdlingResource;
+
+
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new SimpleIdlingResource();
+        }
+        return mIdlingResource;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getRecipes();
         initViews();
+        getIdlingResource();
     }
 
     private void setupRecipesList(List<Recipe> recipes) {
@@ -55,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
                 recipes = response.body();
                 setupRecipesList(recipes);
                 Log.e("test", recipes.toString());
+                if (mIdlingResource != null) {
+                    mIdlingResource.setIdleState(true);
+                }
 //                simpleItemRecyclerViewAdapter.notifyDataSetChanged();
 //                Log.e("response", response.message());
 //                Log.e("response", response.body().get(0).toString());
