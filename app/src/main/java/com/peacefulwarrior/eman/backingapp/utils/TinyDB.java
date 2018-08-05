@@ -407,9 +407,10 @@ public class TinyDB {
      */
     public void putListString(String key, ArrayList<String> stringList) {
         checkForNullKey(key);
+        if (stringList!=null){
         String[] myStringList = stringList.toArray(new String[stringList.size()]);
         preferences.edit().putString(key, TextUtils.join("‚‗‚", myStringList)).apply();
-    }
+    }}
 
     /**
      * Put boolean value into SharedPreferences with 'key' and save

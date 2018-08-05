@@ -1,5 +1,6 @@
 package com.peacefulwarrior.eman.backingapp.activity;
 
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -26,11 +27,13 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recipeList;
     private List<Recipe> recipes;
-    private Recipe recipe;
     private RecipesListAdapter recipesListAdapter;
     RecyclerView.LayoutManager layoutManager;
     @Nullable
     private SimpleIdlingResource mIdlingResource;
+    SimpleIdlingResource idlingResource =
+            (SimpleIdlingResource) getIdlingResource();
+
 
 
     @VisibleForTesting
@@ -46,9 +49,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getRecipes();
         initViews();
-        getIdlingResource();
+        getRecipes();
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     private void setupRecipesList(List<Recipe> recipes) {
@@ -64,21 +72,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getRecipes() {
+        if (idlingResource != null) {
+            idlingResource.setIdleState(false);
+        }
         ApiHelper apiHelper = ApiClient.getClient().create(ApiHelper.class);
         retrofit2.Call<List<Recipe>> call = apiHelper.getRecipes();
         call.enqueue(new Callback<List<Recipe>>() {
             @Override
             public void onResponse(retrofit2.Call<List<Recipe>> call, Response<List<Recipe>> response) {
-//                recipes.addAll(response.body());
                 recipes = response.body();
                 setupRecipesList(recipes);
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                            if (idlingResource != null) {
+                                idlingResource.setIdleState(true);
+                            }
+
+                    }
+                },2000);
+
+
                 Log.e("test", recipes.toString());
-                if (mIdlingResource != null) {
-                    mIdlingResource.setIdleState(true);
-                }
-//                simpleItemRecyclerViewAdapter.notifyDataSetChanged();
-//                Log.e("response", response.message());
-//                Log.e("response", response.body().get(0).toString());
+
+
             }
 
             @Override

@@ -37,7 +37,7 @@ public class BakingWidgetProvider  extends AppWidgetProvider{
 
     private static final String TAG = "WidgetDataProvider";
 
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
+    public static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.baking_widget_provider);
 //        views.setTextViewText(R.id.appwidget_text, widgetText);
@@ -51,6 +51,12 @@ public class BakingWidgetProvider  extends AppWidgetProvider{
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
+    public static void updateWidgets(Context context, AppWidgetManager appWidgetManager,
+                                         int[] appWidgetIds) {
+        for (int appWidgetId : appWidgetIds) {
+            updateAppWidget(context, appWidgetManager, appWidgetId);
+            updateAppWidget(context, appWidgetManager, appWidgetId);
+        }}
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {

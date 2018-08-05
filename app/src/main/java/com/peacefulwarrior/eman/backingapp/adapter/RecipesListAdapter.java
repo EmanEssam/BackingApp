@@ -1,5 +1,7 @@
 package com.peacefulwarrior.eman.backingapp.adapter;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,9 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.peacefulwarrior.eman.backingapp.BakingWidgetProvider;
 import com.peacefulwarrior.eman.backingapp.R;
 import com.peacefulwarrior.eman.backingapp.activity.RecipeDetailsActivity;
 import com.peacefulwarrior.eman.backingapp.model.Recipe;
+import com.peacefulwarrior.eman.backingapp.utils.IngredientsListService;
+import com.peacefulwarrior.eman.backingapp.utils.ListRemoteViewsFactory;
 import com.peacefulwarrior.eman.backingapp.utils.TinyDB;
 
 import java.util.ArrayList;
@@ -48,12 +53,18 @@ public class RecipesListAdapter extends RecyclerView.Adapter<RecipesListAdapter.
                 intent.putExtra("food", bundle);
                 ingredientsList.clear();
                 TinyDB tinydb = new TinyDB(mContext);
+                tinydb.putListString("list", ingredientsList);
                 for (int i=0 ;i<recipeList.get(position).getIngredients().size();i++){
                     ingredientsList.add(recipeList.get(position).getIngredients().get(i).getIngredient());
                 }
 
                 tinydb.putListString("list", ingredientsList);
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
+                int appWidgetIds[] = appWidgetManager.getAppWidgetIds(
+                        new ComponentName(mContext, BakingWidgetProvider.class));
+                appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.ingredient_list_view);
                 mContext.startActivity(intent);
+
             }
         });
     }
