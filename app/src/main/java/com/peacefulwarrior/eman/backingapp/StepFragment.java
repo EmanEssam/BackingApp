@@ -1,16 +1,16 @@
 package com.peacefulwarrior.eman.backingapp;
 
 
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -38,8 +38,8 @@ import java.util.List;
 public class StepFragment extends Fragment {
 
     public static final String ARG_STEP = "ARG_STEP";
-    private int mStep;
     SimpleExoPlayer player;
+    private int mStep;
     private SimpleExoPlayerView simpleExoPlayerView;
 
     private DataSource.Factory mediaDataSourceFactory;
@@ -68,23 +68,82 @@ public class StepFragment extends Fragment {
         stepList = getArguments().getParcelableArrayList("step");
         currentStep = stepList.get(getArguments().getInt("position"));
         simpleExoPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.video_view);
-        final Button backBtn = (Button) rootView.findViewById(R.id.back_btn);
-        final Button nextBtn = (Button) rootView.findViewById(R.id.next_btn);
-        if (mCurrentPosition == 0) {
-//            backBtn.setVisibility(View.GONE);
-            backBtn.setEnabled(false);
+        if (getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            handleExoPlayer();
         } else {
-            backBtn.setEnabled(true);
+            final ImageButton backBtn = (ImageButton) rootView.findViewById(R.id.back_btn);
+            final ImageButton nextBtn = (ImageButton) rootView.findViewById(R.id.next_btn);
+            final TextView instructionTv = (TextView) rootView.findViewById(R.id.instruction_tv);
+            instructionTv.setText(currentStep.getDescription());
+            if (mCurrentPosition == 0) {
+//            backBtn.setVisibility(View.GONE);
+                backBtn.setEnabled(false);
+            } else {
+                backBtn.setEnabled(true);
 //            backBtn.setVisibility(View.VISIBLE);
-        }
-        if (mCurrentPosition == stepList.size() - 1) {
+            }
+            if (mCurrentPosition == stepList.size() - 1) {
 //            nextBtn.setVisibility(View.GONE);
 //            nextBtn.setEnabled(false);
-            nextBtn.setEnabled(false);
-        } else {
+                nextBtn.setEnabled(false);
+            } else {
 //            nextBtn.setVisibility(View.VISIBLE);
-            nextBtn.setEnabled(true);
+                nextBtn.setEnabled(true);
+            }
+
+            handleExoPlayer();
+            backBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mCurrentPosition--;
+                    instructionTv.setText(stepList.get(mCurrentPosition).getDescription());
+                    if (mCurrentPosition == 0) {
+//                    backBtn.setVisibility(View.GONE);
+                        backBtn.setEnabled(false);
+                    } else {
+//                    backBtn.setVisibility(View.VISIBLE);
+                        backBtn.setEnabled(true);
+                    }
+                    if (mCurrentPosition == stepList.size() - 1) {
+//                    nextBtn.setVisibility(View.GONE);
+                        nextBtn.setEnabled(false);
+                    } else {
+//                    nextBtn.setVisibility(View.VISIBLE);
+                        nextBtn.setEnabled(true);
+                    }
+                }
+            });
+            nextBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    instructionTv.setText(stepList.get(mCurrentPosition).getDescription());
+
+                    mCurrentPosition++;
+                    if (mCurrentPosition == 0) {
+//                    backBtn.setVisibility(View.GONE);
+                        backBtn.setEnabled(false);
+
+                    } else {
+//                    backBtn.setVisibility(View.VISIBLE);
+                        backBtn.setEnabled(true);
+                    }
+                    if (mCurrentPosition == stepList.size() - 1) {
+//                    nextBtn.setVisibility(View.GONE);
+                        nextBtn.setEnabled(false);
+
+                    } else {
+//                    nextBtn.setVisibility(View.VISIBLE);
+                        nextBtn.setEnabled(true);
+                    }
+
+
+                }
+            });
         }
+        return rootView;
+    }
+
+    private void handleExoPlayer() {
         bandwidthMeter = new DefaultBandwidthMeter();
         simpleExoPlayerView.requestFocus();
         TrackSelection.Factory videoTrackSelectionFactory =
@@ -98,57 +157,7 @@ public class StepFragment extends Fragment {
         MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(currentStep.getVideoURL()),
                 mediaDataSourceFactory, extractorsFactory, null, null);
         player.prepare(mediaSource);
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCurrentPosition--;
-                if (mCurrentPosition == 0) {
-//                    backBtn.setVisibility(View.GONE);
-                    backBtn.setEnabled(false);
-                } else {
-//                    backBtn.setVisibility(View.VISIBLE);
-                    backBtn.setEnabled(true);
-                }
-                if (mCurrentPosition == stepList.size() - 1) {
-//                    nextBtn.setVisibility(View.GONE);
-                    nextBtn.setEnabled(false);
-                } else {
-//                    nextBtn.setVisibility(View.VISIBLE);
-                    nextBtn.setEnabled(true);
-                }
-                MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL().toString() + ""),
-                        mediaDataSourceFactory, extractorsFactory, null, null);
-                player.prepare(mediaSource);
-            }
-        });
-        nextBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCurrentPosition++;
-                if (mCurrentPosition == 0) {
-//                    backBtn.setVisibility(View.GONE);
-                    backBtn.setEnabled(false);
 
-                } else {
-//                    backBtn.setVisibility(View.VISIBLE);
-                    backBtn.setEnabled(true);
-                }
-                if (mCurrentPosition == stepList.size() - 1) {
-//                    nextBtn.setVisibility(View.GONE);
-                    nextBtn.setEnabled(false);
-
-                } else {
-//                    nextBtn.setVisibility(View.VISIBLE);
-                    nextBtn.setEnabled(true);
-                }
-                MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL().toString() + ""),
-                        mediaDataSourceFactory, extractorsFactory, null, null);
-                player.prepare(mediaSource);
-
-
-            }
-        });
-        return rootView;
     }
 
     @Override
