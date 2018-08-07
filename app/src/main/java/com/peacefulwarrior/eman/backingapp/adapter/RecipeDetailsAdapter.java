@@ -79,7 +79,7 @@ public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (item instanceof Ingredient) {
             Ingredient ingredient = (Ingredient) item;
             RowViewHolder holder1 = (RowViewHolder) holder;
-            holder1.ingredientTv.setText(ingredient.getIngredient() + " (" + ingredient.getQuantity() + ingredient.getMeasure() + ")");
+            holder1.ingredientTv.setText(ingredient.getIngredient() + " (" + Math.round(ingredient.getQuantity()) +""+ ingredient.getMeasure() + ")");
         } else {
             final Step step = (Step) item;
             SectionViewHolder holder1 = (SectionViewHolder) holder;

@@ -3,6 +3,8 @@ package com.peacefulwarrior.eman.backingapp.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,6 +29,8 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
     List<Section> sections = new ArrayList<>();
     List<Step> steps = new ArrayList<>();
     private OnStepClicked onStepClicked;
+    Recipe recipe;
+    RecyclerView RecipesList;
 
     public RecipeDetailsFragment() {
         // Required empty public constructor
@@ -37,20 +41,28 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_recipe_details, container, false);
-        Recipe recipe;
-        if (getArguments()!=null) {
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+        RecipesList = rootView.findViewById(R.id.ingredientRV);
+        if (getArguments() != null) {
             recipe = getArguments().getParcelable("food");
             sections.addAll(recipe.getIngredients());
             sections.addAll(recipe.getSteps());
             steps = recipe.getSteps();
-            RecyclerView RecipesList = rootView.findViewById(R.id.ingredientRV);
-            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-            RecipeDetailsAdapter mAdapter = new RecipeDetailsAdapter(sections, getContext(), steps,getArguments().getBoolean("tablet"),this);
-            RecipesList.setLayoutManager(layoutManager);
+            RecipeDetailsAdapter mAdapter = new RecipeDetailsAdapter(sections, getContext(), steps, getArguments().getBoolean("tablet"), this);
             RecipesList.setAdapter(mAdapter);
         }
+        if (savedInstanceState != null && RecipesList != null) {
+            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable("list_pos");
+            if (RecipesList.getLayoutManager() != null) {
+                RecipesList.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+            }
+        } else {
+            RecipesList.setLayoutManager(layoutManager);
+        }
+
         return rootView;
     }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -58,7 +70,7 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
         // This makes sure that the host activity has implemented the callback interface
         // If not, it throws an exception
         try {
-            onStepClicked= (OnStepClicked) context;
+            onStepClicked = (OnStepClicked) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
                     + " must implement OnImageClickListener");
@@ -72,7 +84,15 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
 
     }
 
-    public interface OnStepClicked{
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (recipe != null) {
+            outState.putParcelable("list_pos", RecipesList.getLayoutManager().onSaveInstanceState());
+        }
+    }
+
+    public interface OnStepClicked {
         void onStepClicked(int position);
     }
 }

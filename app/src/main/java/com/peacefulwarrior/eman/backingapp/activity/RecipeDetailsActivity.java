@@ -19,7 +19,7 @@ import com.peacefulwarrior.eman.backingapp.utils.Section;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDetailsFragment.OnStepClicked{
+public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDetailsFragment.OnStepClicked {
 
     private boolean mTWoPane;
     Recipe recipe;
@@ -36,7 +36,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
             args.putParcelableArrayList("step", (ArrayList<? extends Parcelable>) recipe.getSteps());
             StepFragment stepFragment = new StepFragment();
             stepFragment.setArguments(args);
-            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stepFragment).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, stepFragment).commit();
 
         } else {
             mTWoPane = false;
@@ -45,24 +45,29 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
         RecipeDetailsFragment recipeDetailsFragment = new RecipeDetailsFragment();
         Bundle args = new Bundle();
         args.putParcelable("food", b.getParcelable("food"));
-        args.putBoolean("tablet",mTWoPane);
+        args.putBoolean("tablet", mTWoPane);
         recipeDetailsFragment.setArguments(args);
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().add(R.id.master_list_fragment, recipeDetailsFragment).commit();
-        initViews();
+        fragmentManager.beginTransaction().replace(R.id.master_list_fragment, recipeDetailsFragment).commit();
         setTitle(recipe.getName());
     }
 
-    private void initViews() {
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (recipe != null) {
+            outState.putParcelable("recipe", recipe);
+
+        }
 
     }
-
 
     @Override
     public void onStepClicked(int position) {
         Bundle args = new Bundle();
         args.putParcelableArrayList("step", (ArrayList<? extends Parcelable>) recipe.getSteps());
-        args.putInt("position",position);
+        args.putInt("position", position);
         StepFragment stepFragment = new StepFragment();
         stepFragment.setArguments(args);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, stepFragment).commit();

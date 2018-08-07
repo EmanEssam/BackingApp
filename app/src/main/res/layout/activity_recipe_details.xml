@@ -1,6 +1,4 @@
-
-<fragment android:id="@+id/master_list_fragment"
-android:name="com.peacefulwarrior.eman.backingapp.fragment.RecipeDetailsFragment"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-xmlns:android="http://schemas.android.com/apk/res/android" />
+<FrameLayout android:id="@+id/master_list_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android" />

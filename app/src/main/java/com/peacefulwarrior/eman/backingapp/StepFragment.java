@@ -111,6 +111,10 @@ public class StepFragment extends Fragment {
 //                    nextBtn.setVisibility(View.VISIBLE);
                         nextBtn.setEnabled(true);
                     }
+                    final DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+                    MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL()),
+                            mediaDataSourceFactory, extractorsFactory, null, null);
+                    player.prepare(mediaSource);
                 }
             });
             nextBtn.setOnClickListener(new View.OnClickListener() {
@@ -136,7 +140,10 @@ public class StepFragment extends Fragment {
                         nextBtn.setEnabled(true);
                     }
 
-
+                    final DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+                    MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL()),
+                            mediaDataSourceFactory, extractorsFactory, null, null);
+                    player.prepare(mediaSource);
                 }
             });
         }
@@ -152,11 +159,7 @@ public class StepFragment extends Fragment {
         player = ExoPlayerFactory.newSimpleInstance(getActivity(), trackSelector);
         simpleExoPlayerView.setPlayer(player);
         player.setPlayWhenReady(true);
-        final DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
         mediaDataSourceFactory = new DefaultDataSourceFactory(getActivity(), Util.getUserAgent(getActivity(), "BakingApp"), (TransferListener<? super DataSource>) bandwidthMeter);
-        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(currentStep.getVideoURL()),
-                mediaDataSourceFactory, extractorsFactory, null, null);
-        player.prepare(mediaSource);
 
     }
 

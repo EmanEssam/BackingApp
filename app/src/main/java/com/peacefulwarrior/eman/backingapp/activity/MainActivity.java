@@ -1,6 +1,7 @@
 package com.peacefulwarrior.eman.backingapp.activity;
 
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -18,6 +19,7 @@ import com.peacefulwarrior.eman.backingapp.model.Recipe;
 import com.peacefulwarrior.eman.backingapp.service.ApiClient;
 import com.peacefulwarrior.eman.backingapp.utils.SimpleIdlingResource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Callback;
@@ -35,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
             (SimpleIdlingResource) getIdlingResource();
 
 
-
     @VisibleForTesting
     @NonNull
     public IdlingResource getIdlingResource() {
@@ -50,13 +51,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initViews();
-        getRecipes();
+        if (savedInstanceState != null) {
+            recipes = savedInstanceState.getParcelableArrayList("recipes");
+            setupRecipesList(recipes);
+
+        } else {
+            getRecipes();
+        }
 
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        if (recipes != null) {
+            outState.putParcelableArrayList("recipes", (ArrayList<? extends Parcelable>) recipes);
+        }
+
     }
 
     private void setupRecipesList(List<Recipe> recipes) {
@@ -88,12 +99,12 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
 
-                            if (idlingResource != null) {
-                                idlingResource.setIdleState(true);
-                            }
+                        if (idlingResource != null) {
+                            idlingResource.setIdleState(true);
+                        }
 
                     }
-                },2000);
+                }, 2000);
 
 
                 Log.e("test", recipes.toString());
