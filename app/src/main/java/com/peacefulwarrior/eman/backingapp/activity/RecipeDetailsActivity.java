@@ -4,25 +4,18 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import com.peacefulwarrior.eman.backingapp.R;
 import com.peacefulwarrior.eman.backingapp.StepFragment;
-import com.peacefulwarrior.eman.backingapp.adapter.RecipeDetailsAdapter;
 import com.peacefulwarrior.eman.backingapp.fragment.RecipeDetailsFragment;
 import com.peacefulwarrior.eman.backingapp.model.Recipe;
-import com.peacefulwarrior.eman.backingapp.model.Step;
-import com.peacefulwarrior.eman.backingapp.utils.Section;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDetailsFragment.OnStepClicked {
 
-    private boolean mTWoPane;
     Recipe recipe;
+    private boolean mTWoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +27,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
             mTWoPane = true;
             Bundle args = new Bundle();
             args.putParcelableArrayList("step", (ArrayList<? extends Parcelable>) recipe.getSteps());
+            args.putBoolean("tablet", true);
             StepFragment stepFragment = new StepFragment();
             stepFragment.setArguments(args);
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, stepFragment).commit();

@@ -48,6 +48,7 @@ public class StepFragment extends Fragment {
     private List<Step> stepList;
     private Step currentStep;
     private int mCurrentPosition = 0;
+    private boolean mTwoPane = false;
 
 
     public StepFragment() {
@@ -57,7 +58,6 @@ public class StepFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        mStep = getArguments().getInt(ARG_STEP);
     }
 
     @Override
@@ -65,15 +65,23 @@ public class StepFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_step, container, false);
+        final ImageButton backBtn = (ImageButton) rootView.findViewById(R.id.back_btn);
+        final ImageButton nextBtn = (ImageButton) rootView.findViewById(R.id.next_btn);
+        final TextView instructionTv = (TextView) rootView.findViewById(R.id.instruction_tv);
+        final TextView emptyView = rootView.findViewById(R.id.videoEmptyView);
         stepList = getArguments().getParcelableArrayList("step");
+        if (getArguments().getBoolean("tablet")) {
+            if (backBtn != null & nextBtn != null) {
+                backBtn.setVisibility(View.GONE);
+                nextBtn.setVisibility(View.GONE);
+            }
+        }
         currentStep = stepList.get(getArguments().getInt("position"));
         simpleExoPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.video_view);
         if (getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             handleExoPlayer();
         } else {
-            final ImageButton backBtn = (ImageButton) rootView.findViewById(R.id.back_btn);
-            final ImageButton nextBtn = (ImageButton) rootView.findViewById(R.id.next_btn);
-            final TextView instructionTv = (TextView) rootView.findViewById(R.id.instruction_tv);
+            handleExoPlayer();
             instructionTv.setText(currentStep.getDescription());
             if (mCurrentPosition == 0) {
 //            backBtn.setVisibility(View.GONE);
@@ -112,9 +120,16 @@ public class StepFragment extends Fragment {
                         nextBtn.setEnabled(true);
                     }
                     final DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-                    MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL()),
-                            mediaDataSourceFactory, extractorsFactory, null, null);
-                    player.prepare(mediaSource);
+                    if (!stepList.get(mCurrentPosition).getVideoURL().isEmpty()) {
+                        emptyView.setVisibility(View.GONE);
+                        simpleExoPlayerView.setVisibility(View.VISIBLE);
+                        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL()),
+                                mediaDataSourceFactory, extractorsFactory, null, null);
+                        player.prepare(mediaSource);
+                    } else {
+                        emptyView.setVisibility(View.VISIBLE);
+                        simpleExoPlayerView.setVisibility(View.GONE);
+                    }
                 }
             });
             nextBtn.setOnClickListener(new View.OnClickListener() {

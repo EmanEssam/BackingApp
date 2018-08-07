@@ -3,9 +3,7 @@ package com.peacefulwarrior.eman.backingapp.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,9 +26,10 @@ import java.util.List;
 public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdapter.OnStepClickListener {
     List<Section> sections = new ArrayList<>();
     List<Step> steps = new ArrayList<>();
-    private OnStepClicked onStepClicked;
     Recipe recipe;
-    RecyclerView RecipesList;
+    RecyclerView recipesList;
+    LinearLayoutManager layoutManager;
+    private OnStepClicked onStepClicked;
 
     public RecipeDetailsFragment() {
         // Required empty public constructor
@@ -41,26 +40,48 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_recipe_details, container, false);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-        RecipesList = rootView.findViewById(R.id.ingredientRV);
-        if (getArguments() != null) {
-            recipe = getArguments().getParcelable("food");
-            sections.addAll(recipe.getIngredients());
-            sections.addAll(recipe.getSteps());
-            steps = recipe.getSteps();
-            RecipeDetailsAdapter mAdapter = new RecipeDetailsAdapter(sections, getContext(), steps, getArguments().getBoolean("tablet"), this);
-            RecipesList.setAdapter(mAdapter);
-        }
-        if (savedInstanceState != null && RecipesList != null) {
-            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable("list_pos");
-            if (RecipesList.getLayoutManager() != null) {
-                RecipesList.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
-            }
+        initViews(rootView);
+        if (savedInstanceState != null) {
+            recipe = savedInstanceState.getParcelable("list");
+            int position = savedInstanceState.getInt("position");
+            setupDetailsList(recipe, position);
+
         } else {
-            RecipesList.setLayoutManager(layoutManager);
+            if (getArguments() != null) {
+                recipe = getArguments().getParcelable("food");
+                setupDetailsList(recipe);
+            }
+
         }
 
         return rootView;
+    }
+
+    private void initViews(View rootView) {
+        layoutManager = new LinearLayoutManager(getContext());
+        recipesList = rootView.findViewById(R.id.ingredientRV);
+    }
+
+    private void setupDetailsList(Recipe recipe) {
+        sections.addAll(recipe.getIngredients());
+        sections.addAll(recipe.getSteps());
+        steps = recipe.getSteps();
+        RecipeDetailsAdapter mAdapter = new RecipeDetailsAdapter(sections, getContext(), steps, getArguments().getBoolean("tablet"), this);
+        recipesList.setLayoutManager(layoutManager);
+        recipesList.setAdapter(mAdapter);
+
+    }
+
+    private void setupDetailsList(Recipe recipe, int position) {
+        sections.addAll(recipe.getIngredients());
+        sections.addAll(recipe.getSteps());
+        steps = recipe.getSteps();
+        RecipeDetailsAdapter mAdapter = new RecipeDetailsAdapter(sections, getContext(), steps, getArguments().getBoolean("tablet"), this);
+        recipesList.setLayoutManager(layoutManager);
+        recipesList.smoothScrollToPosition(position);
+        recipesList.setAdapter(mAdapter);
+
+
     }
 
     @Override
@@ -88,8 +109,11 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         if (recipe != null) {
-            outState.putParcelable("list_pos", RecipesList.getLayoutManager().onSaveInstanceState());
+            outState.putParcelable("list", recipe);
+            outState.putInt("position", layoutManager.findFirstVisibleItemPosition());
         }
+
+
     }
 
     public interface OnStepClicked {

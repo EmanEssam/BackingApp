@@ -2,6 +2,7 @@ package com.peacefulwarrior.eman.backingapp.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -20,14 +21,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private List<Section> sections;
     List<Step> steps;
-    private Context context;
-    private Boolean mTwoPane;
     int step_position;
     int ingredients;
     OnStepClickListener mCallback;
+    private List<Section> sections;
+    private Context context;
+    private Boolean mTwoPane;
 
+    private int selected;
 
     public RecipeDetailsAdapter(List<Section> sections, Context context, List<Step> steps, Boolean mTwoPane, OnStepClickListener mCallback) {
         this.sections = sections;
@@ -52,26 +54,6 @@ public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
-
-    public class RowViewHolder extends RecyclerView.ViewHolder {
-
-        TextView ingredientTv;
-
-        public RowViewHolder(View itemView) {
-            super(itemView);
-            ingredientTv = itemView.findViewById(R.id.ingredientTv);
-        }
-    }
-
-    public class SectionViewHolder extends RecyclerView.ViewHolder {
-        TextView stepTv;
-
-        public SectionViewHolder(View itemView) {
-            super(itemView);
-            stepTv = itemView.findViewById(R.id.stepTv);
-        }
-    }
-
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
         Section item = sections.get(position);
@@ -79,14 +61,15 @@ public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (item instanceof Ingredient) {
             Ingredient ingredient = (Ingredient) item;
             RowViewHolder holder1 = (RowViewHolder) holder;
-            holder1.ingredientTv.setText(ingredient.getIngredient() + " (" + Math.round(ingredient.getQuantity()) +""+ ingredient.getMeasure() + ")");
+            holder1.ingredientTv.setText(ingredient.getIngredient() + " (" + Math.round(ingredient.getQuantity()) + "" + ingredient.getMeasure() + ")");
         } else {
             final Step step = (Step) item;
-            SectionViewHolder holder1 = (SectionViewHolder) holder;
+            final SectionViewHolder holder1 = (SectionViewHolder) holder;
             holder1.stepTv.setText(step.getShortDescription());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    selected = position;
 //                    mCallback.onStepSelected(position);
                     if (!mTwoPane) {
                         Intent intent = new Intent(context, StepsPlayerActivity.class);
@@ -96,6 +79,11 @@ public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.View
                         intent.putExtra("position", step_position);
                         context.startActivity(intent);
                     } else {
+                        if (selected == position) {
+                            holder1.itemView.setBackgroundColor(context.getResources().getColor(R.color.colorAccent));
+                        } else {
+                            holder1.itemView.setBackgroundColor(Color.TRANSPARENT);
+                        }
                         ingredients = sections.size() - steps.size();
                         step_position = position - ingredients;
                         mCallback.onStepSelected(step_position);
@@ -124,5 +112,24 @@ public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public interface OnStepClickListener {
         void onStepSelected(int position);
+    }
+
+    public class RowViewHolder extends RecyclerView.ViewHolder {
+
+        TextView ingredientTv;
+
+        public RowViewHolder(View itemView) {
+            super(itemView);
+            ingredientTv = itemView.findViewById(R.id.ingredientTv);
+        }
+    }
+
+    public class SectionViewHolder extends RecyclerView.ViewHolder {
+        TextView stepTv;
+
+        public SectionViewHolder(View itemView) {
+            super(itemView);
+            stepTv = itemView.findViewById(R.id.stepTv);
+        }
     }
 }
