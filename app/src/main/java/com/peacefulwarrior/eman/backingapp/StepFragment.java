@@ -39,9 +39,9 @@ public class StepFragment extends Fragment {
 
     public static final String ARG_STEP = "ARG_STEP";
     SimpleExoPlayer player;
+    TextView emptyView;
     private int mStep;
     private SimpleExoPlayerView simpleExoPlayerView;
-
     private DataSource.Factory mediaDataSourceFactory;
     private DefaultTrackSelector trackSelector;
     private BandwidthMeter bandwidthMeter;
@@ -49,7 +49,6 @@ public class StepFragment extends Fragment {
     private Step currentStep;
     private int mCurrentPosition = 0;
     private boolean mTwoPane = false;
-    TextView emptyView;
 
 
     public StepFragment() {
@@ -132,10 +131,10 @@ public class StepFragment extends Fragment {
                         nextBtn.setEnabled(true);
                     }
                     if (!stepList.get(mCurrentPosition).getVideoURL().isEmpty()) {
+                        handleExoPlayer(stepList.get(mCurrentPosition));
                         emptyView.setVisibility(View.GONE);
                         simpleExoPlayerView.setVisibility(View.VISIBLE);
                     } else {
-                        handleExoPlayer(stepList.get(mCurrentPosition));
                         emptyView.setVisibility(View.VISIBLE);
                         simpleExoPlayerView.setVisibility(View.GONE);
                     }
@@ -145,9 +144,8 @@ public class StepFragment extends Fragment {
             nextBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    instructionTv.setText(stepList.get(mCurrentPosition).getDescription());
-
                     mCurrentPosition++;
+                    instructionTv.setText(stepList.get(mCurrentPosition).getDescription());
                     if (mCurrentPosition == 0) {
 //                    backBtn.setVisibility(View.GONE);
                         backBtn.setEnabled(false);
@@ -165,10 +163,10 @@ public class StepFragment extends Fragment {
                         nextBtn.setEnabled(true);
                     }
                     if (!stepList.get(mCurrentPosition).getVideoURL().isEmpty()) {
+                        handleExoPlayer(stepList.get(mCurrentPosition));
                         emptyView.setVisibility(View.GONE);
                         simpleExoPlayerView.setVisibility(View.VISIBLE);
                     } else {
-                        handleExoPlayer(stepList.get(mCurrentPosition));
                         emptyView.setVisibility(View.VISIBLE);
                         simpleExoPlayerView.setVisibility(View.GONE);
                     }
@@ -183,7 +181,8 @@ public class StepFragment extends Fragment {
         simpleExoPlayerView.setVisibility(View.GONE);
         emptyView.setVisibility(View.VISIBLE);
     }
-    private void hideEmptyView(){
+
+    private void hideEmptyView() {
         simpleExoPlayerView.setVisibility(View.VISIBLE);
         emptyView.setVisibility(View.GONE);
 
