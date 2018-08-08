@@ -3,7 +3,9 @@ package com.peacefulwarrior.eman.backingapp.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,6 +32,7 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
     RecyclerView recipesList;
     LinearLayoutManager layoutManager;
     private OnStepClicked onStepClicked;
+    Bundle bundle;
 
     public RecipeDetailsFragment() {
         // Required empty public constructor
@@ -44,7 +47,7 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
         if (savedInstanceState != null) {
             recipe = savedInstanceState.getParcelable("list");
             int position = savedInstanceState.getInt("position");
-            setupDetailsList(recipe, position);
+            setupDetailsList(recipe, 15);
 
         } else {
             if (getArguments() != null) {
@@ -72,15 +75,49 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (bundle != null) {
+            Parcelable listState = bundle.getParcelable("state");
+            recipesList.getLayoutManager().onRestoreInstanceState(listState);
+//            recipesList.smoothScrollToPosition(5);
+
+        }
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null) {
+//            Parcelable listState = savedInstanceState.getParcelable("state");
+//            recipesList.getLayoutManager().onRestoreInstanceState(listState);
+            recipesList.scrollToPosition(savedInstanceState.getInt("pos")+10);
+
+
+        }
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        bundle = new Bundle();
+        Parcelable listState = recipesList.getLayoutManager().onSaveInstanceState();
+        bundle.putParcelable("state", listState);
+        bundle.putInt("pos", layoutManager.findFirstCompletelyVisibleItemPosition());
+
+    }
+
     private void setupDetailsList(Recipe recipe, int position) {
         sections.addAll(recipe.getIngredients());
         sections.addAll(recipe.getSteps());
         steps = recipe.getSteps();
         RecipeDetailsAdapter mAdapter = new RecipeDetailsAdapter(sections, getContext(), steps, getArguments().getBoolean("tablet"), this);
         recipesList.setLayoutManager(layoutManager);
-        recipesList.smoothScrollToPosition(position);
         recipesList.setAdapter(mAdapter);
-
+//        recipesList.smoothScrollToPosition(position);
+        recipesList.scrollToPosition(position);
 
     }
 
@@ -103,6 +140,7 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
     public void onStepSelected(int position) {
         onStepClicked.onStepClicked(position);
 
+
     }
 
     @Override
@@ -113,10 +151,14 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
             outState.putInt("position", layoutManager.findFirstVisibleItemPosition());
         }
 
+        Parcelable listState = recipesList.getLayoutManager().onSaveInstanceState();
+        outState.putParcelable("state", listState);
+        outState.putInt("pos", layoutManager.findFirstVisibleItemPosition());
 
     }
 
     public interface OnStepClicked {
         void onStepClicked(int position);
+
     }
 }

@@ -62,6 +62,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
         Bundle args = new Bundle();
         args.putParcelableArrayList("step", (ArrayList<? extends Parcelable>) recipe.getSteps());
         args.putInt("position", position);
+        args.putBoolean("tablet", true);
         StepFragment stepFragment = new StepFragment();
         stepFragment.setArguments(args);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, stepFragment).commit();

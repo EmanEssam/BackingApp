@@ -66,10 +66,15 @@ public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.View
             final Step step = (Step) item;
             final SectionViewHolder holder1 = (SectionViewHolder) holder;
             holder1.stepTv.setText(step.getShortDescription());
+            if (selected == position) {
+                holder1.itemView.setBackgroundColor(context.getResources().getColor(R.color.colorAccent));
+            } else {
+                holder1.itemView.setBackgroundColor(Color.TRANSPARENT);
+            }
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    selected = position;
+
 //                    mCallback.onStepSelected(position);
                     if (!mTwoPane) {
                         Intent intent = new Intent(context, StepsPlayerActivity.class);
@@ -79,11 +84,8 @@ public class RecipeDetailsAdapter extends RecyclerView.Adapter<RecyclerView.View
                         intent.putExtra("position", step_position);
                         context.startActivity(intent);
                     } else {
-                        if (selected == position) {
-                            holder1.itemView.setBackgroundColor(context.getResources().getColor(R.color.colorAccent));
-                        } else {
-                            holder1.itemView.setBackgroundColor(Color.TRANSPARENT);
-                        }
+                        selected = position;
+                        notifyDataSetChanged();
                         ingredients = sections.size() - steps.size();
                         step_position = position - ingredients;
                         mCallback.onStepSelected(step_position);

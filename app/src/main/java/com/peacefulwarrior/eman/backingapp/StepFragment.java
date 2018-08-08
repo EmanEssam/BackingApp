@@ -49,6 +49,7 @@ public class StepFragment extends Fragment {
     private Step currentStep;
     private int mCurrentPosition = 0;
     private boolean mTwoPane = false;
+    TextView emptyView;
 
 
     public StepFragment() {
@@ -68,8 +69,9 @@ public class StepFragment extends Fragment {
         final ImageButton backBtn = (ImageButton) rootView.findViewById(R.id.back_btn);
         final ImageButton nextBtn = (ImageButton) rootView.findViewById(R.id.next_btn);
         final TextView instructionTv = (TextView) rootView.findViewById(R.id.instruction_tv);
-        final TextView emptyView = rootView.findViewById(R.id.videoEmptyView);
+        emptyView = rootView.findViewById(R.id.videoEmptyView);
         stepList = getArguments().getParcelableArrayList("step");
+        mTwoPane = getArguments().getBoolean("tablet");
         if (getArguments().getBoolean("tablet")) {
             if (backBtn != null & nextBtn != null) {
                 backBtn.setVisibility(View.GONE);
@@ -77,11 +79,23 @@ public class StepFragment extends Fragment {
             }
         }
         currentStep = stepList.get(getArguments().getInt("position"));
+        mCurrentPosition = getArguments().getInt("position");
         simpleExoPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.video_view);
-        if (getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            handleExoPlayer();
+        if (currentStep.getVideoURL().isEmpty()) {
+            showEmptyView();
         } else {
-            handleExoPlayer();
+            hideEmptyView();
+            handleExoPlayer(currentStep);
+        }
+
+        if (getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            if (currentStep.getVideoURL().isEmpty()) {
+                showEmptyView();
+            } else {
+                hideEmptyView();
+                handleExoPlayer(currentStep);
+            }
+        } else {
             instructionTv.setText(currentStep.getDescription());
             if (mCurrentPosition == 0) {
 //            backBtn.setVisibility(View.GONE);
@@ -98,8 +112,6 @@ public class StepFragment extends Fragment {
 //            nextBtn.setVisibility(View.VISIBLE);
                 nextBtn.setEnabled(true);
             }
-
-            handleExoPlayer();
             backBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -119,17 +131,15 @@ public class StepFragment extends Fragment {
 //                    nextBtn.setVisibility(View.VISIBLE);
                         nextBtn.setEnabled(true);
                     }
-                    final DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
                     if (!stepList.get(mCurrentPosition).getVideoURL().isEmpty()) {
                         emptyView.setVisibility(View.GONE);
                         simpleExoPlayerView.setVisibility(View.VISIBLE);
-                        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL()),
-                                mediaDataSourceFactory, extractorsFactory, null, null);
-                        player.prepare(mediaSource);
                     } else {
+                        handleExoPlayer(stepList.get(mCurrentPosition));
                         emptyView.setVisibility(View.VISIBLE);
                         simpleExoPlayerView.setVisibility(View.GONE);
                     }
+
                 }
             });
             nextBtn.setOnClickListener(new View.OnClickListener() {
@@ -154,18 +164,32 @@ public class StepFragment extends Fragment {
 //                    nextBtn.setVisibility(View.VISIBLE);
                         nextBtn.setEnabled(true);
                     }
+                    if (!stepList.get(mCurrentPosition).getVideoURL().isEmpty()) {
+                        emptyView.setVisibility(View.GONE);
+                        simpleExoPlayerView.setVisibility(View.VISIBLE);
+                    } else {
+                        handleExoPlayer(stepList.get(mCurrentPosition));
+                        emptyView.setVisibility(View.VISIBLE);
+                        simpleExoPlayerView.setVisibility(View.GONE);
+                    }
 
-                    final DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-                    MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(stepList.get(mCurrentPosition).getVideoURL()),
-                            mediaDataSourceFactory, extractorsFactory, null, null);
-                    player.prepare(mediaSource);
                 }
             });
         }
         return rootView;
     }
 
-    private void handleExoPlayer() {
+    private void showEmptyView() {
+        simpleExoPlayerView.setVisibility(View.GONE);
+        emptyView.setVisibility(View.VISIBLE);
+    }
+    private void hideEmptyView(){
+        simpleExoPlayerView.setVisibility(View.VISIBLE);
+        emptyView.setVisibility(View.GONE);
+
+    }
+
+    private void handleExoPlayer(Step step) {
         bandwidthMeter = new DefaultBandwidthMeter();
         simpleExoPlayerView.requestFocus();
         TrackSelection.Factory videoTrackSelectionFactory =
@@ -175,7 +199,10 @@ public class StepFragment extends Fragment {
         simpleExoPlayerView.setPlayer(player);
         player.setPlayWhenReady(true);
         mediaDataSourceFactory = new DefaultDataSourceFactory(getActivity(), Util.getUserAgent(getActivity(), "BakingApp"), (TransferListener<? super DataSource>) bandwidthMeter);
-
+        DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(step.getVideoURL()),
+                mediaDataSourceFactory, extractorsFactory, null, null);
+        player.prepare(mediaSource);
     }
 
     @Override

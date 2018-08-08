@@ -17,7 +17,7 @@
         android:layout_marginTop="@dimen/activity_vertical_margin" />
 
     <TextView
-        android:text="No Video Available for this step"
+        android:text="@string/no_video_available_for_this_step"
         android:id="@+id/videoEmptyView"
         android:layout_width="match_parent"
         android:layout_height="300dp"
