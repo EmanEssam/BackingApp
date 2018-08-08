@@ -15,14 +15,19 @@ import java.util.ArrayList;
 public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDetailsFragment.OnStepClicked {
 
     Recipe recipe;
+    Bundle b;
     private boolean mTWoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_details);
-        Bundle b = getIntent().getBundleExtra("food");
-        recipe = b.getParcelable("food");
+        if (savedInstanceState != null) {
+            recipe = savedInstanceState.getParcelable("recipe");
+        } else {
+            b = getIntent().getBundleExtra("food");
+            recipe = b.getParcelable("food");
+        }
         if (findViewById(R.id.fragment_container) != null) {
             mTWoPane = true;
             Bundle args = new Bundle();
@@ -38,13 +43,15 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
 
         RecipeDetailsFragment recipeDetailsFragment = new RecipeDetailsFragment();
         Bundle args = new Bundle();
-        args.putParcelable("food", b.getParcelable("food"));
+        args.putParcelable("food", recipe);
         args.putBoolean("tablet", mTWoPane);
         recipeDetailsFragment.setArguments(args);
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.master_list_fragment, recipeDetailsFragment).commit();
         setTitle(recipe.getName());
     }
+
+
 
 
     @Override
