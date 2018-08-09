@@ -2,7 +2,6 @@ package com.peacefulwarrior.eman.backingapp.activity;
 
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.peacefulwarrior.eman.backingapp.R;
@@ -22,6 +21,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_details);
+
         if (savedInstanceState != null) {
             recipe = savedInstanceState.getParcelable("recipe");
         } else {
@@ -35,8 +35,9 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
             args.putBoolean("tablet", true);
             StepFragment stepFragment = new StepFragment();
             stepFragment.setArguments(args);
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, stepFragment).commit();
-
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, stepFragment).commit();
+            }
         } else {
             mTWoPane = false;
         }
@@ -46,12 +47,12 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
         args.putParcelable("food", recipe);
         args.putBoolean("tablet", mTWoPane);
         recipeDetailsFragment.setArguments(args);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.master_list_fragment, recipeDetailsFragment).commit();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.master_list_fragment, recipeDetailsFragment).commit();
+        }
         setTitle(recipe.getName());
+
     }
-
-
 
 
     @Override

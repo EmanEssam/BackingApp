@@ -31,8 +31,8 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
     Recipe recipe;
     RecyclerView recipesList;
     LinearLayoutManager layoutManager;
-    private OnStepClicked onStepClicked;
     Bundle bundle;
+    private OnStepClicked onStepClicked;
 
     public RecipeDetailsFragment() {
         // Required empty public constructor
@@ -46,8 +46,7 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
         initViews(rootView);
         if (savedInstanceState != null) {
             recipe = savedInstanceState.getParcelable("list");
-            int position = savedInstanceState.getInt("position");
-            setupDetailsList(recipe, 15);
+            setupDetailsList(recipe);
 
         } else {
             if (getArguments() != null) {
@@ -78,23 +77,14 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
     @Override
     public void onResume() {
         super.onResume();
-        if (bundle != null) {
-            Parcelable listState = bundle.getParcelable("state");
-            recipesList.getLayoutManager().onRestoreInstanceState(listState);
-//            recipesList.smoothScrollToPosition(5);
-
-        }
     }
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (savedInstanceState != null) {
-//            Parcelable listState = savedInstanceState.getParcelable("state");
-//            recipesList.getLayoutManager().onRestoreInstanceState(listState);
-            recipesList.scrollToPosition(savedInstanceState.getInt("pos")+10);
-
-
+            Parcelable state = savedInstanceState.getParcelable("KeyForLayoutManagerState");
+            layoutManager.onRestoreInstanceState(state);
         }
     }
 
@@ -102,10 +92,6 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
     @Override
     public void onPause() {
         super.onPause();
-        bundle = new Bundle();
-        Parcelable listState = recipesList.getLayoutManager().onSaveInstanceState();
-        bundle.putParcelable("state", listState);
-        bundle.putInt("pos", layoutManager.findFirstCompletelyVisibleItemPosition());
 
     }
 
@@ -116,7 +102,6 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
         RecipeDetailsAdapter mAdapter = new RecipeDetailsAdapter(sections, getContext(), steps, getArguments().getBoolean("tablet"), this);
         recipesList.setLayoutManager(layoutManager);
         recipesList.setAdapter(mAdapter);
-//        recipesList.smoothScrollToPosition(position);
         recipesList.scrollToPosition(position);
 
     }
@@ -150,11 +135,7 @@ public class RecipeDetailsFragment extends Fragment implements RecipeDetailsAdap
             outState.putParcelable("list", recipe);
             outState.putInt("position", layoutManager.findFirstVisibleItemPosition());
         }
-
-        Parcelable listState = recipesList.getLayoutManager().onSaveInstanceState();
-        outState.putParcelable("state", listState);
-        outState.putInt("pos", layoutManager.findFirstVisibleItemPosition());
-
+        outState.putParcelable("KeyForLayoutManagerState", layoutManager.onSaveInstanceState());
     }
 
     public interface OnStepClicked {

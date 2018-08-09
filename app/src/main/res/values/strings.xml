@@ -11,4 +11,9 @@
     <string name="add_widget">Add widget</string>
     <string name="recipe">Recipeٌ</string>
     <string name="no_video_available_for_this_step">No Video Available for this step</string>
+    <string name="Ingredients_list">Ingredients List:</string>
+    <string name="recipe_description">Recipe Description</string>
+    <string name="ingredient">ingredient</string>
+    <string name="step_decription">Step decription</string>
+    <string name="list_item">list item</string>
 </resources>

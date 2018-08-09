@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF0266</color>
     <color name="textColorPrimary">#FFF</color>
     <color name="cardBackgroudColor">#7E57C2</color>
+    <color name="black">#000</color>
 </resources>

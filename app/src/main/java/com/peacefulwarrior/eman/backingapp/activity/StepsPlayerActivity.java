@@ -32,8 +32,9 @@ public class StepsPlayerActivity extends AppCompatActivity {
         bundle.putInt("position",getIntent().getExtras().getInt("position"));
         StepFragment stepFragment = new StepFragment();
         stepFragment.setArguments(bundle);
-        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,stepFragment).commit();
-
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stepFragment).commit();
+        }
     }
 
 

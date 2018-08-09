@@ -51,6 +51,9 @@ public class StepFragment extends Fragment {
     private int mCurrentPosition = 0;
     private boolean mTwoPane = false;
     private long videoCurrentPosition;
+    private long playbackPosition;
+    private int currentWindow;
+    private boolean playWhenReady;
 
 
     public StepFragment() {
@@ -79,15 +82,21 @@ public class StepFragment extends Fragment {
                 nextBtn.setVisibility(View.GONE);
             }
         }
+        if (savedInstanceState == null) {
+            currentWindow = 0;
+            playbackPosition = 0;
+            playWhenReady = true;
+        } else {
+            currentWindow = savedInstanceState.getInt("currentWindow");
+            playbackPosition = savedInstanceState.getLong("playBackPosition");
+            playWhenReady = savedInstanceState.getBoolean("playWhenReady");
+
+        }
+
         currentStep = stepList.get(getArguments().getInt("position"));
         mCurrentPosition = getArguments().getInt("position");
         simpleExoPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.video_view);
-        if (currentStep.getVideoURL().isEmpty()) {
-            showEmptyView();
-        } else {
-            hideEmptyView();
-            handleExoPlayer(currentStep);
-        }
+
 
         if (getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             if (currentStep.getVideoURL().isEmpty()) {
@@ -97,6 +106,12 @@ public class StepFragment extends Fragment {
                 handleExoPlayer(currentStep);
             }
         } else {
+            if (currentStep.getVideoURL().isEmpty()) {
+                showEmptyView();
+            } else {
+                hideEmptyView();
+                handleExoPlayer(currentStep);
+            }
             instructionTv.setText(currentStep.getDescription());
             if (mCurrentPosition == 0) {
 //            backBtn.setVisibility(View.GONE);
@@ -192,29 +207,39 @@ public class StepFragment extends Fragment {
 
     private void handleExoPlayer(Step step) {
         bandwidthMeter = new DefaultBandwidthMeter();
-        simpleExoPlayerView.requestFocus();
         TrackSelection.Factory videoTrackSelectionFactory =
                 new AdaptiveTrackSelection.Factory(bandwidthMeter);
         trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
         player = ExoPlayerFactory.newSimpleInstance(getActivity(), trackSelector);
-        simpleExoPlayerView.setPlayer(player);
-        player.setPlayWhenReady(true);
         mediaDataSourceFactory = new DefaultDataSourceFactory(getActivity(), Util.getUserAgent(getActivity(), "BakingApp"), (TransferListener<? super DataSource>) bandwidthMeter);
         DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
         MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(step.getVideoURL()),
                 mediaDataSourceFactory, extractorsFactory, null, null);
-        player.prepare(mediaSource);
+        simpleExoPlayerView.setPlayer(player);
+        player.setPlayWhenReady(playWhenReady);
+        player.seekTo(currentWindow, playbackPosition);
+        player.prepare(mediaSource, false, false);
+
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        if (player != null) {
+            playbackPosition = player.getCurrentPosition();
+            currentWindow = player.getCurrentWindowIndex();
+            playWhenReady = player.getPlayWhenReady();
+        }
+        releasePlayer();
     }
+
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putInt("currentWindow", currentWindow);
+        outState.putLong("playBackPosition", playbackPosition);
+        outState.putBoolean("playWhenReady", playWhenReady);
         super.onSaveInstanceState(outState);
-        outState.putLong("video_position", videoCurrentPosition = player.getCurrentPosition());
     }
 
     @Override
@@ -237,7 +262,7 @@ public class StepFragment extends Fragment {
 
     private void releasePlayer() {
         if (player != null) {
-//            player.removeListener(componentListener);
+            player.stop();
             player.release();
             player = null;
         }

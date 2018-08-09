@@ -20,28 +20,23 @@
         android:text="@string/no_video_available_for_this_step"
         android:id="@+id/videoEmptyView"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="@dimen/video_empty_view_height"
         android:gravity="center"
         android:visibility="gone"
         android:textColor="@color/colorAccent"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginTop="@dimen/activity_vertical_margin" />
-    <!--app:layout_constraintLeft_toLeftOf="parent"-->
-    <!--app:layout_constraintTop_toTopOf="@+id/constraintLayout"-->
-    <!--tools:layout_constraintLeft_creator="1"-->
-    <!--tools:layout_constraintTop_creator="1"-->
-    <!--/>-->
     <TextView
         android:id="@+id/instruction_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:padding="8dp"
-        android:text="gjfjggggggggggggjgjgjgjgjgj"
+        android:layout_marginBottom="@dimen/recipe_dec_margin_bottom"
+        android:layout_marginEnd="@dimen/recipe_dec_margin_end"
+        android:layout_marginStart="@dimen/recipe_dec_margin_start"
+        android:layout_marginTop="@dimen/recipe_dec_margin_top"
+        android:padding="@dimen/recipe_dec_padding"
+        android:text="@string/recipe_description"
         app:layout_constraintBottom_toTopOf="@+id/back_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -51,11 +46,11 @@
 
     <ImageButton
         android:id="@+id/back_btn"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="32dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="20dp"
+        android:layout_width="@dimen/back_btn_width"
+        android:layout_height="@dimen/back_btn_height"
+        android:layout_marginBottom="@dimen/back_btn_margin_bottom"
+        android:layout_marginEnd="@dimen/back_btn_margin_end"
+        android:layout_marginStart="@dimen/back_btn_margin_start"
         android:background="@drawable/navigation_btn_selector"
         android:src="@drawable/ic_left"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -66,10 +61,10 @@
     <ImageButton
 
         android:id="@+id/next_btn"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="32dp"
-        android:layout_marginEnd="36dp"
+        android:layout_width="@dimen/next_btn_width"
+        android:layout_height="@dimen/next_btn_height"
+        android:layout_marginBottom="@dimen/next_btn_margin_bottom"
+        android:layout_marginEnd="@dimen/next_btn_margin_end"
         android:background="@drawable/navigation_btn_selector"
         android:src="@drawable/ic_right"
         app:layout_constraintBottom_toBottomOf="parent"
