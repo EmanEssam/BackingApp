@@ -4,6 +4,7 @@ package com.peacefulwarrior.eman.backingapp;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -30,6 +31,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
 import com.peacefulwarrior.eman.backingapp.model.Step;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -54,6 +56,7 @@ public class StepFragment extends Fragment {
     private long playbackPosition;
     private int currentWindow;
     private boolean playWhenReady;
+    private Bundle bundle;
 
 
     public StepFragment() {
@@ -74,7 +77,7 @@ public class StepFragment extends Fragment {
         final ImageButton nextBtn = (ImageButton) rootView.findViewById(R.id.next_btn);
         final TextView instructionTv = (TextView) rootView.findViewById(R.id.instruction_tv);
         emptyView = rootView.findViewById(R.id.videoEmptyView);
-        stepList = getArguments().getParcelableArrayList("step");
+        simpleExoPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.video_view);
         mTwoPane = getArguments().getBoolean("tablet");
         if (getArguments().getBoolean("tablet")) {
             if (backBtn != null & nextBtn != null) {
@@ -82,36 +85,23 @@ public class StepFragment extends Fragment {
                 nextBtn.setVisibility(View.GONE);
             }
         }
+        currentStep=new Step();
         if (savedInstanceState == null) {
+            stepList = getArguments().getParcelableArrayList("step");
+            mCurrentPosition = getArguments().getInt("position");
             currentWindow = 0;
             playbackPosition = 0;
             playWhenReady = true;
         } else {
+            stepList = savedInstanceState.getParcelableArrayList("steps");
+            mCurrentPosition = savedInstanceState.getInt("pos");
             currentWindow = savedInstanceState.getInt("currentWindow");
             playbackPosition = savedInstanceState.getLong("playBackPosition");
             playWhenReady = savedInstanceState.getBoolean("playWhenReady");
 
         }
-
-        currentStep = stepList.get(getArguments().getInt("position"));
-        mCurrentPosition = getArguments().getInt("position");
-        simpleExoPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.video_view);
-
-
-        if (getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            if (currentStep.getVideoURL().isEmpty()) {
-                showEmptyView();
-            } else {
-                hideEmptyView();
-                handleExoPlayer(currentStep);
-            }
-        } else {
-            if (currentStep.getVideoURL().isEmpty()) {
-                showEmptyView();
-            } else {
-                hideEmptyView();
-                handleExoPlayer(currentStep);
-            }
+        currentStep = stepList.get(mCurrentPosition);
+        if (!(getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)) {
             instructionTv.setText(currentStep.getDescription());
             if (mCurrentPosition == 0) {
 //            backBtn.setVisibility(View.GONE);
@@ -131,6 +121,9 @@ public class StepFragment extends Fragment {
             backBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    currentWindow = 0;
+                    playbackPosition = 0;
+                    playWhenReady = true;
                     mCurrentPosition--;
                     instructionTv.setText(stepList.get(mCurrentPosition).getDescription());
                     if (mCurrentPosition == 0) {
@@ -161,6 +154,9 @@ public class StepFragment extends Fragment {
             nextBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    currentWindow = 0;
+                    playbackPosition = 0;
+                    playWhenReady = true;
                     mCurrentPosition++;
                     instructionTv.setText(stepList.get(mCurrentPosition).getDescription());
                     if (mCurrentPosition == 0) {
@@ -225,20 +221,57 @@ public class StepFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        bundle = new Bundle();
         if (player != null) {
             playbackPosition = player.getCurrentPosition();
             currentWindow = player.getCurrentWindowIndex();
             playWhenReady = player.getPlayWhenReady();
+            bundle.putInt("currentWindow", currentWindow);
+            bundle.putLong("playBackPosition", playbackPosition);
+            bundle.putBoolean("playWhenReady", playWhenReady);
         }
         releasePlayer();
     }
 
 
     @Override
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT > 23) {
+            if (currentStep.getVideoURL().isEmpty()) {
+                showEmptyView();
+            } else {
+                hideEmptyView();
+                handleExoPlayer(currentStep);
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (bundle != null) {
+            currentWindow = bundle.getInt("currentWindow");
+            playbackPosition = bundle.getLong("playBackPosition");
+            playWhenReady = bundle.getBoolean("playWhenReady");
+        }
+        if ((Util.SDK_INT <= 23 || player == null)) {
+            if (currentStep.getVideoURL().isEmpty()) {
+                showEmptyView();
+            } else {
+                hideEmptyView();
+                handleExoPlayer(currentStep);
+            }
+        }
+    }
+
+    @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putInt("currentWindow", currentWindow);
         outState.putLong("playBackPosition", playbackPosition);
         outState.putBoolean("playWhenReady", playWhenReady);
+        outState.putParcelableArrayList("steps", (ArrayList<? extends Parcelable>) stepList);
+        outState.putInt("pos", mCurrentPosition);
         super.onSaveInstanceState(outState);
     }
 
@@ -248,17 +281,6 @@ public class StepFragment extends Fragment {
         releasePlayer();
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        releasePlayer();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        releasePlayer();
-    }
 
     private void releasePlayer() {
         if (player != null) {

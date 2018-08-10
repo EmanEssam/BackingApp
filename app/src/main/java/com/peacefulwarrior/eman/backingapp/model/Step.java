@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import com.peacefulwarrior.eman.backingapp.utils.Section;
 
-public class Step implements Parcelable,Section{
+public class Step implements Parcelable, Section {
 
     private Integer id;
     private String shortDescription;
@@ -23,6 +23,9 @@ public class Step implements Parcelable,Section{
         description = in.readString();
         videoURL = in.readString();
         thumbnailURL = in.readString();
+    }
+
+    public Step() {
     }
 
     public static final Creator<Step> CREATOR = new Creator<Step>() {
